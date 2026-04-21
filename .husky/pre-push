@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -e
+
+cd "$(dirname "$0")/.."
+
+# Expo app: não há 'build' local (usa EAS). Fazemos type-check rápido.
+echo "🔎 Executando type-check (tsc --noEmit)..."
+if npm run typecheck; then
+  echo "✅ Type-check passou!"
+else
+  echo "❌ Type-check falhou. Push abortado."
+  exit 1
+fi

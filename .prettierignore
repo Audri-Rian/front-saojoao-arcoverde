@@ -1,0 +1,23 @@
+node_modules
+dist
+build
+coverage
+*.log
+.DS_Store
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Expo / React Native
+.expo
+.expo-shared
+ios
+android
+web-build
+
+# Generated
+expo-env.d.ts
+nativewind-env.d.ts
+
+# Documentação e templates (mantém autoria)
+docs/
