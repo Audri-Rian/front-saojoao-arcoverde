@@ -73,6 +73,7 @@ printf "\n${YELLOW}Este script vai:${RESET}\n"
 printf "  • Instalar: husky, lint-staged, prettier, eslint, @commitlint/cli, @commitlint/config-conventional\n"
 printf "  • Copiar arquivos de config (sobrescreve se já existir)\n"
 printf "  • Copiar pasta .claude/ e .husky/\n"
+printf "  • Criar AGENT.md (instruções universais pra qualquer IA) se ainda não existir\n"
 printf "  • Rodar ${BOLD}$PM exec husky init${RESET}\n\n"
 printf "Continuar? [y/N]: "
 read -r confirm
@@ -127,6 +128,11 @@ copy_file "$TEMPLATES_DIR/.prettierignore" "$TARGET_DIR/.prettierignore"
 copy_file "$TEMPLATES_DIR/.lintstagedrc.json" "$TARGET_DIR/.lintstagedrc.json"
 copy_file "$TEMPLATES_DIR/commitlint.config.js" "$TARGET_DIR/commitlint.config.js"
 
+# AGENT.md universal (para Cursor, ChatGPT, Gemini, Copilot etc.)
+if [ -f "$KIT_DIR/AGENT.md" ] && [ ! -f "$TARGET_DIR/AGENT.md" ]; then
+  copy_file "$KIT_DIR/AGENT.md" "$TARGET_DIR/AGENT.md"
+fi
+
 # .vscode
 copy_dir "$TEMPLATES_DIR/.vscode" "$TARGET_DIR/.vscode"
 
@@ -169,11 +175,17 @@ printf "   ${DIM}\"format:check\": \"prettier --check .\"${RESET}\n\n"
 printf "2. ${YELLOW}Cria o eslint.config.mjs${RESET} (ESLint 9 flat config):\n"
 printf "   ${DIM}https://eslint.org/docs/latest/use/configure/configuration-files${RESET}\n\n"
 
-printf "3. ${YELLOW}Customiza .claude/skills/development-rules/SKILL.md${RESET}\n"
-printf "   ${DIM}Abre no Claude Code e pede pra ele preencher com base no teu código:${RESET}\n"
-printf "   ${DIM}\"Lê meu código e preenche o development-rules com stack e arquitetura\"${RESET}\n\n"
+printf "3. ${YELLOW}Customiza as regras do projeto${RESET}\n"
+printf "   ${DIM}Abre no Claude Code (ou qualquer IA) e pede:${RESET}\n"
+printf "   ${DIM}\"Lê meu código e preenche AGENT.md e .claude/skills/development-rules/SKILL.md${RESET}\n"
+printf "   ${DIM} com a stack real, arquitetura e regras deste projeto.\"${RESET}\n\n"
 
-printf "4. ${YELLOW}Se teu projeto não tiver build${RESET}, edita ou remove ${BOLD}.husky/pre-push${RESET}\n\n"
+printf "4. ${YELLOW}Usando outra IA${RESET} (Cursor, ChatGPT, Copilot, Gemini)?\n"
+printf "   ${DIM}• Cursor: renomeie AGENT.md pra .cursorrules${RESET}\n"
+printf "   ${DIM}• Copilot: copie AGENT.md pra .github/copilot-instructions.md${RESET}\n"
+printf "   ${DIM}• ChatGPT/Gemini: cole AGENT.md em 'Custom Instructions'${RESET}\n\n"
+
+printf "5. ${YELLOW}Se teu projeto não tiver build${RESET}, edita ou remove ${BOLD}.husky/pre-push${RESET}\n\n"
 
 printf "${BOLD}Teste rápido:${RESET}\n"
 printf "  ${DIM}git commit --allow-empty -m \"chore: testa hooks\"${RESET}\n\n"

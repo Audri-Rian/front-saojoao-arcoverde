@@ -1,6 +1,66 @@
 #!/usr/bin/env sh
-set -e
 
 cd "$(dirname "$0")/.."
 
-npx --no -- commitlint --edit "$1"
+BOLD='\033[1m'
+RED='\033[31m'
+YELLOW='\033[33m'
+GREEN='\033[32m'
+CYAN='\033[36m'
+DIM='\033[2m'
+RESET='\033[0m'
+
+# Roda commitlint e captura saída + status
+COMMITLINT_OUTPUT=$(npx --no -- commitlint --edit "$1" 2>&1)
+COMMITLINT_STATUS=$?
+
+if [ $COMMITLINT_STATUS -eq 0 ]; then
+  exit 0
+fi
+
+# Pega a mensagem que o usuário tentou commitar
+USER_MSG=$(grep -v '^#' "$1" | sed '/./,$!d' | head -1)
+
+printf "\n"
+printf "${BOLD}${RED}╔═══════════════════════════════════════════════════════════════════╗${RESET}\n"
+printf "${BOLD}${RED}║  ❌ Mensagem de commit inválida                                   ║${RESET}\n"
+printf "${BOLD}${RED}╚═══════════════════════════════════════════════════════════════════╝${RESET}\n\n"
+
+printf "${DIM}Você escreveu:${RESET} ${YELLOW}\"${USER_MSG}\"${RESET}\n\n"
+
+printf "${BOLD}📏 Formato esperado:${RESET}\n\n"
+printf "   ${CYAN}<tipo>(<escopo>): <descrição>${RESET}\n\n"
+
+printf "${BOLD}🏷️  Tipos válidos:${RESET}\n"
+printf "   ${GREEN}feat${RESET}      ${DIM}nova funcionalidade${RESET}\n"
+printf "   ${GREEN}fix${RESET}       ${DIM}correção de bug${RESET}\n"
+printf "   ${GREEN}refactor${RESET}  ${DIM}mudança sem alterar comportamento${RESET}\n"
+printf "   ${GREEN}perf${RESET}      ${DIM}melhoria de performance${RESET}\n"
+printf "   ${GREEN}style${RESET}     ${DIM}formatação, sem lógica${RESET}\n"
+printf "   ${GREEN}test${RESET}      ${DIM}adicionar/alterar testes${RESET}\n"
+printf "   ${GREEN}docs${RESET}      ${DIM}documentação${RESET}\n"
+printf "   ${GREEN}chore${RESET}     ${DIM}dependências, configs, tarefas gerais${RESET}\n"
+printf "   ${GREEN}ci${RESET}        ${DIM}pipelines de CI/CD${RESET}\n"
+printf "   ${GREEN}build${RESET}     ${DIM}sistema de build${RESET}\n"
+printf "   ${GREEN}revert${RESET}    ${DIM}reverter commit anterior${RESET}\n\n"
+
+printf "${BOLD}✅ Exemplos corretos:${RESET}\n"
+printf "   ${GREEN}feat(auth): adiciona login com google${RESET}\n"
+printf "   ${GREEN}fix(api): corrige timeout em /users${RESET}\n"
+printf "   ${GREEN}chore: atualiza dependências${RESET}\n"
+printf "   ${GREEN}docs(readme): adiciona instruções de setup${RESET}\n\n"
+
+printf "${BOLD}📝 Regras da descrição:${RESET}\n"
+printf "   ${DIM}• Verbo no imperativo em pt-BR${RESET} ${GREEN}(adiciona, corrige, remove)${RESET}\n"
+printf "   ${DIM}• Minúscula no início${RESET}\n"
+printf "   ${DIM}• Sem ponto final${RESET}\n"
+printf "   ${DIM}• Máximo ~50 caracteres${RESET}\n\n"
+
+printf "${BOLD}🔧 Como corrigir:${RESET}\n"
+printf "   ${CYAN}git commit -m \"<tipo>: <descrição>\"${RESET}  ${DIM}(os arquivos seguem staged)${RESET}\n\n"
+
+printf "${DIM}Detalhes técnicos do commitlint:${RESET}\n"
+echo "$COMMITLINT_OUTPUT" | sed 's/^/   /'
+printf "\n"
+
+exit 1
