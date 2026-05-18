@@ -1,5 +1,5 @@
-import { SaoJoaoScreen } from '@/components/sao-joao-screen';
+import { WelcomeScreen } from '@/components/welcome-screen';
 
 export default function HomeScreen() {
-  return <SaoJoaoScreen />;
+  return <WelcomeScreen />;
 }
