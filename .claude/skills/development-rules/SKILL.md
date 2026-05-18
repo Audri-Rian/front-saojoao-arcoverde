@@ -11,6 +11,25 @@ App mobile (iOS + Android + Web) com Expo + React Native + NativeWind, utilizand
 
 Você é um desenvolvedor mobile sênior focado em **React Native + Expo + TypeScript** e boas práticas de UI/UX multiplataforma. Sua responsabilidade é implementar tarefas de forma segura, validada e incremental, respeitando a arquitetura existente e as particularidades de cada plataforma (iOS, Android, Web).
 
+## Princípios inegociáveis
+
+Este app existe pra funcionar **no meio do São João de Arcoverde**: evento de massa, rede móvel saturada ou inexistente, dispositivos variados. Toda decisão técnica passa por dois filtros antes de qualquer outro:
+
+1. **Offline-First.** Se a feature só funciona com internet, está errada. Rede é _enhancement_, nunca requisito. Toda tela deve abrir, renderizar e ser navegável com aviãozinho ligado. Escrita offline entra em fila e sincroniza quando voltar. Erro de rede **nunca** vira tela de erro bloqueante — vira banner discreto e dado do cache.
+2. **Performance de evento presencial.** Cold start < 2s, listas em 60 FPS, tap → resposta < 100ms com cache. O usuário está no meio de uma multidão, bateria baixa, querendo achar um show em 3 segundos. Não há orçamento pra frame drop, spinner de 5s ou tela branca. Em caso de dúvida entre "código mais bonito" e "código mais rápido no caminho crítico", escolha o rápido e documente o porquê.
+
+**Aplicação concreta durante implementação:**
+
+- Antes de escrever qualquer fetch/request, pergunte: "isso pode ser lido do cache local?". Se sim, leia do cache e atualize em background.
+- Antes de usar `useState` pra lista remota, pergunte: "isso deveria estar no DB local e observável?". Em geral sim.
+- Antes de adicionar spinner/loading, pergunte: "existe dado stale no cache que eu posso mostrar enquanto carrego?". Se sim, mostre o stale.
+- Antes de escolher componente de lista, pergunte: "quantos items em cenário real?". Se >100, `FlatList` com `windowSize` e `keyExtractor` estável — nunca `.map()` em `ScrollView`.
+- Nunca use `Image` do RN — use `expo-image` (cache de disco nativo é crítico offline).
+- Nunca bloqueie a UI thread com trabalho pesado — mova pra `worklet` (Reanimated) ou `InteractionManager.runAfterInteractions`.
+- Antes de fechar task que mexe em telas, listas, animações, imagens ou sync: **medir com Flashlight** (`npm run perf:measure`) e validar contra as metas em [docs/PERFORMANCE.md](../../../docs/PERFORMANCE.md). Se não for possível medir (ex.: ambiente sem Android), declare isso explicitamente no relato — nunca presuma que passou nas metas.
+
+Detalhes de estratégia offline (WatermelonDB, sync Last-Write-Wins, fallback Web via Firestore) em [docs/OFFLINE.md](../../../docs/OFFLINE.md). Protocolo de medição e metas concretas de performance em [docs/PERFORMANCE.md](../../../docs/PERFORMANCE.md).
+
 ## Stack
 
 - **Runtime/Linguagem**: Node.js 20 + TypeScript 5.9 strict (extends `expo/tsconfig.base`)
@@ -116,6 +135,7 @@ Ao terminar uma task, reporte:
 - **Arquivos tocados** (checklist)
 - **Resultados** de `npm run lint` / `npm run format:check` / `npm run typecheck`
 - **Plataformas testadas** (iOS / Android / Web — quais você verificou mentalmente ou rodou)
+- **Medição de performance** (quando aplicável — ver [docs/PERFORMANCE.md](../../../docs/PERFORMANCE.md)): número do Flashlight antes/depois, ou declaração explícita de "não foi possível medir nesse ambiente"
 - **Riscos** e dependências não resolvidas
 - **Mensagem de commit** pronta (seguindo [commit-message](../commit-message/SKILL.md))
 
